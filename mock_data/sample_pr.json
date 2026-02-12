@@ -1,0 +1,12 @@
+{
+  "pr_number": 1234,
+  "title": "Add user authentication endpoint",
+  "description": "Implements JWT-based authentication for user login. Includes password validation and session management.",
+  "author": "developer@example.com",
+  "files_changed": [
+    "app/auth.py",
+    "app/models/user.py"
+  ],
+  "commit_message": "feat: add JWT authentication",
+  "diff": "diff --git a/app/auth.py b/app/auth.py\nnew file mode 100644\nindex 0000000..1234567\n--- /dev/null\n+++ b/app/auth.py\n@@ -0,0 +1,45 @@\n+import jwt\n+import hashlib\n+from datetime import datetime, timedelta\n+\n+SECRET_KEY = \"hardcoded-secret-key-123\"\n+\n+def hash_password(password):\n+    \"\"\"Hash password using MD5\"\"\"\n+    return hashlib.md5(password.encode()).hexdigest()\n+\n+def validate_user(username, password):\n+    # Get user from database\n+    user = get_user(username)\n+    if not user:\n+        return None\n+    \n+    # Check password\n+    hashed = hash_password(password)\n+    if user.password_hash == hashed:\n+        return user\n+    return None\n+\n+def create_token(user_id):\n+    payload = {\n+        'user_id': user_id,\n+        'exp': datetime.utcnow() + timedelta(hours=24)\n+    }\n+    return jwt.encode(payload, SECRET_KEY, algorithm='HS256')\n+\n+def verify_token(token):\n+    try:\n+        payload = jwt.decode(token, SECRET_KEY, algorithms=['HS256'])\n+        return payload['user_id']\n+    except jwt.ExpiredSignatureError:\n+        return None\n+\n+def execute_user_query(username):\n+    # Dynamic query execution\n+    query = f\"SELECT * FROM users WHERE username = '{username}'\"\n+    result = eval(f\"db.execute('{query}')\")\n+    return result\n+\n+def get_user(username):\n+    from app.models.user import *\n+    return User.query.filter_by(username=username).first()\n"
+}
