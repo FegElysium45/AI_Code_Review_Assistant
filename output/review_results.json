@@ -1,0 +1,54 @@
+{
+  "pr_number": 1234,
+  "issues": [
+    {
+      "type": "security",
+      "severity": "high",
+      "message": "Use of eval() detected",
+      "confidence": 1.0,
+      "action": "review",
+      "line_number": null,
+      "file_path": null
+    },
+    {
+      "type": "security",
+      "severity": "high",
+      "message": "Hardcoded secret key detected",
+      "confidence": 1.0,
+      "action": "review",
+      "line_number": null,
+      "file_path": null
+    },
+    {
+      "type": "security",
+      "severity": "high",
+      "message": "MD5 is cryptographically broken - use SHA256 or bcrypt",
+      "confidence": 1.0,
+      "action": "review",
+      "line_number": null,
+      "file_path": null
+    },
+    {
+      "type": "style",
+      "severity": "low",
+      "message": "Star import (import *) detected. Consider explicit imports.",
+      "confidence": 0.9,
+      "action": "review",
+      "line_number": null,
+      "file_path": null
+    }
+  ],
+  "summary": {
+    "total_issues": 4,
+    "high_severity": 3,
+    "medium_severity": 0,
+    "low_severity": 1,
+    "review_time_seconds": 0.0,
+    "llm_used": false,
+    "model_name": null
+  },
+  "metadata": {
+    "prompt_version": "v1.0",
+    "llm_provider": null
+  }
+}

@@ -31,13 +31,15 @@ def check_security_patterns(diff: str) -> List[Issue]:
     
     # Dangerous function patterns
     dangerous_patterns = {
-        r'\beval\s*\(': ("Use of eval() detected", "high"),
-        r'\bexec\s*\(': ("Use of exec() detected", "high"),
-        r'\bpickle\.loads?\(': ("Use of pickle detected - consider safer alternatives", "medium"),
-        r'password\s*=\s*["\'][^"\']+["\']': ("Possible hardcoded password", "high"),
-        r'api[_-]?key\s*=\s*["\'][^"\']+["\']': ("Possible hardcoded API key", "high"),
-        r'secret\s*=\s*["\'][^"\']+["\']': ("Possible hardcoded secret", "high"),
-    }
+    r'\beval\s*\(':                          ("Use of eval() detected", "high"),
+    r'\bexec\s*\(':                          ("Use of exec() detected", "high"),
+    r'\bpickle\.loads?\(':                   ("Use of pickle detected - consider safer alternatives", "medium"),
+    r'password\s*=\s*["\'][^"\']+["\']':     ("Possible hardcoded password", "high"),
+    r'api[_-]?key\s*=\s*["\'][^"\']+["\']': ("Possible hardcoded API key", "high"),
+    r'secret\s*=\s*["\'][^"\']+["\']':       ("Possible hardcoded secret", "high"),
+    r'SECRET_KEY\s*=\s*["\']':               ("Hardcoded secret key detected", "high"),
+    r'hashlib\.md5':                         ("MD5 is cryptographically broken - use SHA256 or bcrypt", "high"),
+}
     
     for pattern, (message, severity) in dangerous_patterns.items():
         if re.search(pattern, diff, re.IGNORECASE):

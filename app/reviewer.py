@@ -98,31 +98,89 @@ def _call_openai(task_prompt: str, model: str, timeout: int) -> List[Issue]:
 
 
 def _call_anthropic(task_prompt: str, model: str, timeout: int) -> List[Issue]:
-    """Call Anthropic API."""
+    """
+    Call Anthropic API via LangChain integration.
+
+    Why LangChain here:
+    - Unified interface: swapping to GPT-4 or a local model
+      later requires zero changes to this function's callers
+    - Built-in retry logic and timeout handling
+    - Provider-agnostic message format (HumanMessage/SystemMessage)
+    - Future-ready: adding tools, memory, or chains requires
+      no architectural changes
+    """
     try:
-        import anthropic
-        
+        from langchain_anthropic import ChatAnthropic
+        from langchain_core.messages import HumanMessage, SystemMessage
+
         api_key = os.getenv("ANTHROPIC_API_KEY")
         if not api_key:
             raise ReviewerError("ANTHROPIC_API_KEY not set")
-        
-        client = anthropic.Anthropic(api_key=api_key, timeout=timeout)
-        
-        response = client.messages.create(
+
+        llm = ChatAnthropic(
             model=model,
-            max_tokens=2000,
-            system=SYSTEM_PROMPT,
-            messages=[
-                {"role": "user", "content": task_prompt}
-            ],
+            api_key=api_key,
             temperature=0.1,
+            max_tokens=2000,
+            timeout=timeout,
         )
-        
-        content = response.content[0].text
-        return _parse_llm_output(content)
-    
+
+        messages = [
+            SystemMessage(content=SYSTEM_PROMPT),
+            HumanMessage(content=task_prompt),
+        ]
+
+        response = llm.invoke(messages)
+        return _parse_llm_output(response.content)
+
     except Exception as e:
-        raise ReviewerError(f"Anthropic API error: {str(e)}")
+        raise ReviewerError(f"Anthropic (LangChain) error: {str(e)}")
+
+
+
+
+def _call_anthropic(task_prompt: str, model: str, timeout: int) -> List[Issue]:
+    """
+    Call Anthropic API via LangChain integration.
+
+    Why LangChain here:
+    - Unified interface: swapping to GPT-4 or a local model
+      later requires zero changes to this function's callers
+    - Built-in retry logic and timeout handling
+    - Provider-agnostic message format (HumanMessage/SystemMessage)
+    - Future-ready: adding tools, memory, or chains requires
+      no architectural changes
+    """
+    try:
+        from langchain_anthropic import ChatAnthropic
+        from langchain_core.messages import HumanMessage, SystemMessage
+
+        api_key = os.getenv("ANTHROPIC_API_KEY")
+        if not api_key:
+            raise ReviewerError("ANTHROPIC_API_KEY not set")
+
+        llm = ChatAnthropic(
+            model=model,
+            api_key=api_key,
+            temperature=0.1,
+            max_tokens=2000,
+            timeout=timeout,
+        )
+
+        messages = [
+            SystemMessage(content=SYSTEM_PROMPT),
+            HumanMessage(content=task_prompt),
+        ]
+
+        response = llm.invoke(messages)
+        return _parse_llm_output(response.content)
+
+    except Exception as e:
+        raise ReviewerError(f"Anthropic (LangChain) error: {str(e)}")
+
+
+
+
 
 
 def _call_local(task_prompt: str, model: str, timeout: int) -> List[Issue]:
