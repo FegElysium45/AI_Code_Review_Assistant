@@ -138,32 +138,29 @@ def demo():
             "mode":            "rule-based (LLM integration ready)"
         }
     })
-```
 
----
 
 ## **Step 2: Add these two files to your repo root**
-```
+
 # Procfile
 web: uvicorn api:app --host 0.0.0.0 --port $PORT
-```
-```
+
+
 # runtime.txt
 python-3.11.0
-```
 
----
+
 
 ## **Step 3: Update requirements.txt**
 
 Add these two lines at the top:
-```
+
 fastapi>=0.104.0
 uvicorn>=0.24.0
-```
+
 
 Your full `requirements.txt` becomes:
-```
+
 fastapi>=0.104.0
 uvicorn>=0.24.0
 openai>=1.0.0
