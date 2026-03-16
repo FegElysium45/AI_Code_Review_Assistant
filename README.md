@@ -18,6 +18,7 @@ A conservative, read-only code review assistant for Python pull requests. Combin
 - Catches common issues before code review
 - Frees senior engineers to focus on complex design decisions
 
+*Designed for containerized deployment via Docker to integrate with enterprise orchestration layers like  n8n or AWS Lambda" will perfectly bridge your project to the "Full Architecture" we discussed.*
 ---
 
 ## What It Checks
