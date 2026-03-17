@@ -139,36 +139,4 @@ def demo():
         }
     })
 
-
-## **Step 2: Add these two files to your repo root**
-
-# Procfile
-web: uvicorn api:app --host 0.0.0.0 --port $PORT
-
-
-# runtime.txt
-python-3.11.0
-
-
-
-## **Step 3: Update requirements.txt**
-
-Add these two lines at the top:
-
-fastapi>=0.104.0
-uvicorn>=0.24.0
-
-
-Your full `requirements.txt` becomes:
-
-fastapi>=0.104.0
-uvicorn>=0.24.0
-openai>=1.0.0
-anthropic>=0.18.0
-pydantic>=2.0.0
-python-dotenv>=1.0.0
-requests>=2.31.0
-pytest>=7.0.0
-pytest-cov>=4.0.0
-black>=23.0.0
-mypy>=1.0.0
+    
