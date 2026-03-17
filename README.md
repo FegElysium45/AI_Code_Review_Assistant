@@ -1,9 +1,23 @@
-
 # AI Code Review Assistant
 
 **Reduce reviewer fatigue. Surface common issues early. Keep humans focused on what matters.**
 
 A conservative, read-only code review assistant for Python pull requests. Combines rule-based checks with AI analysis to catch style issues, simple bugs, and security hints—so your senior engineers can focus on architecture and business logic.
+
+---
+
+## 🚀 Live Deployment
+
+[![API Docs](https://img.shields.io/badge/API%20Docs-Live-blue?style=for-the-badge)](https://ai-code-review-assistant-gu0p.onrender.com/docs)
+[![Live Demo](https://img.shields.io/badge/Live%20Demo-Try%20It-green?style=for-the-badge)](https://ai-code-review-assistant-gu0p.onrender.com/demo)
+
+| Endpoint | URL |
+|----------|-----|
+| 📖 Interactive API Docs | https://ai-code-review-assistant-gu0p.onrender.com/docs |
+| ⚡ Live Demo | https://ai-code-review-assistant-gu0p.onrender.com/demo |
+| ❤️ Health Check | https://ai-code-review-assistant-gu0p.onrender.com/health |
+
+> **Note:** Hosted on Render free tier — first request may take 30–60 seconds to wake up.
 
 ---
 
@@ -13,12 +27,13 @@ A conservative, read-only code review assistant for Python pull requests. Combin
 
 **Solution:** This assistant runs rule-based prechecks and optional AI analysis on every PR, surfacing low-hanging fruit before human review. It never blocks PRs or auto-merges—it's advisory only.
 
-**Impact:** 
+**Impact:**
 - Reduces time spent on trivial review comments
 - Catches common issues before code review
 - Frees senior engineers to focus on complex design decisions
 
-*Designed for containerized deployment via Docker to integrate with enterprise orchestration layers like  n8n or AWS Lambda" will perfectly bridge your project to the "Full Architecture" we discussed.*
+Designed for containerized deployment via Docker, integrable with enterprise orchestration layers like n8n or AWS Lambda.
+
 ---
 
 ## What It Checks
@@ -39,25 +54,49 @@ A conservative, read-only code review assistant for Python pull requests. Combin
 
 ---
 
-## How to Install
+## Architecture
 
-### Option 1: Planned GitHub Action (Not Yet Implemented)
-
-**Note:** This repository does not currently ship a GitHub Action. The YAML below illustrates a planned integration point.
-```yaml
-name: AI Code Review
-on: [pull_request]
-jobs:
-  review:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - uses: your-org/ai-code-reviewer@v1
-        with:
-          api_key: ${{ secrets.OPENAI_API_KEY }}
+```
+[PR Diff Input]
+       ↓
+[Rule-Based Prechecks] ← size, security patterns, imports
+       ↓
+[Prompt Builder] ← structured system + task prompts
+       ↓
+[LLM Call] ← OpenAI/Anthropic/local
+       ↓
+[Confidence Filter] ← threshold: 0.7+
+       ↓
+[Review Output] ← JSON: {type, severity, confidence, action}
 ```
 
-### Option 2: CLI (Local/Manual - Currently Available)
+**Design Principles:**
+- Conservative: when uncertain, defer to humans
+- Observable: log everything, measure false positives
+- Fail-safe: errors never block PRs
+
+---
+
+## Quick Start
+
+### Option 1: Live API (No Setup Required)
+Hit the live demo endpoint directly:
+```bash
+curl https://ai-code-review-assistant-gu0p.onrender.com/demo
+```
+
+Or POST your own PR diff:
+```bash
+curl -X POST https://ai-code-review-assistant-gu0p.onrender.com/review \
+  -H "Content-Type: application/json" \
+  -d '{
+    "pr_number": 42,
+    "title": "Add auth endpoint",
+    "diff": "+SECRET_KEY = \"hardcoded-key\"\n+result = eval(user_input)"
+  }'
+```
+
+### Option 2: Run Locally
 ```bash
 pip install -r requirements.txt
 python app/main.py --pr-file mock_data/sample_pr.json
@@ -81,7 +120,6 @@ def check_pr_size(diff: str) -> Optional[Issue]:
         )
     return None
 ```
-
 Add your rule, register it in `RULE_REGISTRY`, done.
 
 ---
@@ -150,63 +188,41 @@ It's advisory only. Humans always have final say.
 
 ---
 
-## Architecture
-```
-[PR Diff Input]
-       ↓
-[Rule-Based Prechecks] ← size, security patterns, imports
-       ↓
-[Prompt Builder] ← structured system + task prompts
-       ↓
-[LLM Call] ← OpenAI/Anthropic/local
-       ↓
-[Confidence Filter] ← threshold: 0.7+
-       ↓
-[Review Output] ← JSON: {type, severity, confidence, action}
-```
+## Sample Output
 
-**Design Principles:**
-- Conservative: when uncertain, defer to humans
-- Observable: log everything, measure false positives
-- Fail-safe: errors never block PRs
-
----
-
-## Quick Start
-```bash
-# Install
-pip install -r requirements.txt
-
-# Run on sample PR
-python app/main.py --pr-file mock_data/sample_pr.json
-
-# View output
-cat output/review_results.json
-```
-
-**Sample output:**
 ```json
 {
+  "pr_number": 9999,
+  "title": "Demo: Auth endpoint with intentional security issues",
   "issues": [
     {
       "type": "security",
       "severity": "high",
-      "message": "Use of eval() detected. Consider safer alternatives.",
+      "message": "Use of eval() detected - security risk",
+      "confidence": 1.0,
+      "action": "review"
+    },
+    {
+      "type": "security",
+      "severity": "high",
+      "message": "Hardcoded secret key detected",
       "confidence": 1.0,
       "action": "review"
     },
     {
       "type": "style",
       "severity": "low",
-      "message": "Function lacks docstring",
-      "confidence": 0.8,
+      "message": "Star import (import *) detected. Use explicit imports.",
+      "confidence": 0.9,
       "action": "review"
     }
   ],
   "summary": {
-    "total_issues": 2,
-    "high_severity": 1,
-    "review_time_seconds": 1.2
+    "total_issues": 4,
+    "high_severity": 3,
+    "low_severity": 1,
+    "llm_used": false,
+    "mode": "rule-based (LLM integration ready)"
   }
 }
 ```
@@ -219,6 +235,7 @@ cat output/review_results.json
 - Fine-tuned model on team's historical PR comments
 - Human feedback loop (thumbs up/down on suggestions)
 - Integration with Slack for review notifications
+- GitHub Action for automatic PR triggering
 
 ---
 
@@ -231,24 +248,3 @@ MIT
 ## Contributing
 
 PRs welcome. See `CONTRIBUTING.md` for guidelines.
-```
-
----
-
-### **2. requirements.txt**
-```
-# Core dependencies
-openai>=1.0.0
-anthropic>=0.18.0
-pydantic>=2.0.0
-python-dotenv>=1.0.0
-requests>=2.31.0
-
-# Development
-pytest>=7.0.0
-pytest-cov>=4.0.0
-black>=23.0.0
-mypy>=1.0.0
-=======
-# AI_Code_Review_Assistant
-# DevEx.LLM.Python
